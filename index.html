@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>ASH INNOVATIONS — Hazsher "Sir Ash" Briz Munjilul</title>
+<meta name="description" content="DepEd web systems for enrollment, lesson planning, class records, monitoring, SPED data, and CPD tracking. Built by a public school teacher in Davao City.">
+<meta property="og:title" content="ASH INNOVATIONS — Hazsher &quot;Sir Ash&quot; Briz Munjilul">
+<meta property="og:description" content="Thirteen systems built for DepEd schools — enrollment, lesson planning, monitoring, assessment, SPED, and CPD tracking. Built and maintained by a public school teacher in Davao City.">
+<meta property="og:image" content="assets/hazsher.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/sir-ash-icon.jpg" type="image/jpeg">
+<link rel="preload" as="image" href="assets/hazsher.jpg">
+<link rel="preload" as="image" href="assets/sir-ash-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a0b14;
+    --panel: rgba(18,20,36,0.74);
+    --panel-solid:#12142a;
+    --line: #2a3050;
+    --line-soft: rgba(120,132,180,0.26);
+    --gold:#e7b563;
+    --rose:#d98a9d;
+    --text:#f4f1ea;
+    --muted:#8d92ab;
+    --focus:#e7b563;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{-webkit-text-size-adjust:100%; scroll-behavior:smooth;}
+
+  body{
+    background: radial-gradient(ellipse 120% 90% at 50% 6%, #171a30 0%, var(--void) 55%, #060710 100%);
+    color: var(--text);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  a{ color: inherit; }
+
+  .bokeh{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .bokeh span{
+    position:absolute; border-radius:50%; filter: blur(1px);
+    opacity:0.14; animation: drift 22s ease-in-out infinite;
+  }
+  @keyframes drift{ 0%,100%{ transform: translateY(0px);} 50%{ transform: translateY(-24px);} }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ---------- HEADER (sticky + nav) ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding: 14px clamp(16px,4vw,48px);
+    background: rgba(10,11,20,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(42,48,80,0.45);
+  }
+  .brand{ display:flex; align-items:center; gap:14px; text-decoration:none; flex:none; }
+  .brand-icon{
+    width: clamp(38px, 6vw, 48px); height: clamp(38px, 6vw, 48px); border-radius:50%; overflow:hidden; flex:none;
+    border: 2px solid rgba(231,181,99,0.55);
+    box-shadow: 0 0 18px rgba(231,181,99,0.28);
+  }
+  .brand-icon img{ width:100%; height:100%; object-fit:cover; object-position:50% 30%; }
+  .wordmark{
+    font-family:'Unbounded', sans-serif; font-weight:800;
+    font-size: clamp(38px, 2.2vw, 46px); letter-spacing:0.12em; color: var(--text);
+    line-height:1.1;
+  }
+  .wordmark span{color:var(--gold);}
+
+  .nav{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center;
+  }
+  .nav button{
+    all:unset; cursor:pointer;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.06em;
+    padding: 7px 14px; border-radius:999px;
+    color: var(--muted); border: 1px solid transparent;
+    transition: all 160ms ease;
+  }
+  .nav button:hover{ color: var(--text); border-color: var(--line); }
+  .nav button.active{
+    color: #181205; background: var(--gold); border-color: var(--gold); font-weight:600;
+  }
+  .nav button:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .callsign-meta{
+    font-family:'JetBrains Mono', monospace; font-size:10px;
+    letter-spacing:0.07em; color:var(--muted); text-align:right; line-height:1.55; flex:none;
+  }
+  .callsign-meta .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--gold); margin-right:6px; box-shadow:0 0 8px var(--gold);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  /* ---------- VIEWS ---------- */
+  .view{ display:none; position:relative; z-index:2; }
+  .view.active{ display:block; }
+
+  /* ---------- HERO / CONSTELLATION ---------- */
+  .hero-wrap{
+    position:relative; z-index:2;
+    display:flex; align-items:flex-end; justify-content:center;
+    max-width: 1720px; margin: 0 auto; overflow:hidden;
+  }
+  .hero-wrap::before, .hero-wrap::after{
+    content:""; position:absolute; top:0; bottom:0; width:min(14vw, 220px);
+    z-index:3; pointer-events:none;
+  }
+  .hero-wrap::before{ left:0; background: linear-gradient(to right, var(--void), transparent); }
+  .hero-wrap::after{ right:0; background: linear-gradient(to left, var(--void), transparent); }
+
+  .pillar{
+    position:relative; z-index:1; flex:none; align-self:flex-end;
+    height: min(70vh, 740px); width:auto; max-width:26vw; object-fit:contain; object-position:bottom;
+    opacity:1; filter: grayscale(0.2) brightness(0.9) contrast(1.05);
+    -webkit-mask-image: linear-gradient(to top, #000 90%, transparent 97%);
+    mask-image: linear-gradient(to top, #000 90%, transparent 97%);
+    pointer-events:none; user-select:none;
+  }
+  .pillar-left{ margin-right: clamp(-140px, -9vw, -40px); }
+  .pillar-right{ margin-left: clamp(-140px, -9vw, -40px); }
+
+  @media (max-width: 1200px){
+    .pillar{ display:none; }
+  }
+
+  .stage{
+    position:relative; z-index:2;
+    width:100%; max-width: 1200px;
+    margin: 1vh auto 0;
+    aspect-ratio: 1 / 1;
+    max-height: min(82vh, 860px);
+  }
+
+  .ring-guide{
+    position:absolute; top:50%; left:50%;
+    border-radius:50%;
+    transform: translate(-50%,-50%);
+    border: 1px solid var(--line-soft);
+    pointer-events:none;
+  }
+  .ring-guide.r-inner{ border-style:dashed; }
+  .ring-guide.r-outer{ border-color: rgba(217,138,157,0.22); }
+
+  .portrait-wrap{
+    position:absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+    z-index:50;
+    width: clamp(130px, 17vw, 200px); height: clamp(130px, 17vw, 200px);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .portrait-glow{
+    position:absolute; inset:-17px; border-radius:50%;
+    background: conic-gradient(from 0deg, var(--gold), var(--rose), var(--gold));
+    filter: blur(16px); opacity:0.7; animation: spin 14s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg);} }
+  .portrait{
+    position:relative; width:100%; height:100%; border-radius:50%; overflow:hidden;
+    border: 3px solid rgba(244,241,234,0.95);
+    box-shadow: 0 0 0 8px rgba(10,11,20,0.9), 0 24px 64px rgba(0,0,0,0.65);
+  }
+  .portrait img{
+    width:100%; height:100%; object-fit:cover; object-position: 50% 22%;
+    filter: saturate(1.1) contrast(1.08);
+  }
+  .portrait-tag{
+    position:absolute; bottom:-13px; left:50%; transform:translateX(-50%);
+    background: var(--panel-solid); border:1px solid var(--line);
+    padding: 4px 12px; border-radius: 999px;
+    font-family:'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing:0.1em;
+    color: var(--gold); white-space:nowrap;
+  }
+
+  .node{
+    position:absolute; top:50%; left:50%;
+    width:58px; height:58px; margin:-29px;
+    will-change: transform, opacity;
+  }
+  .node.outer{ width:92px; height:92px; margin:-46px; }
+
+  .node button{
+    all:unset; display:flex; align-items:center; justify-content:center;
+    width:100%; height:100%; border-radius:50%;
+    background: var(--panel); backdrop-filter: blur(6px);
+    border: 1px solid var(--line); cursor:pointer; position:relative;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+  }
+  .node button:hover, .node button:focus-visible{
+    border-color: var(--gold); box-shadow: 0 0 20px rgba(231,181,99,0.28);
+  }
+  .node button:focus-visible{ outline: 2px solid var(--focus); outline-offset:3px; }
+  .node.active button{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(231,181,99,0.14), 0 0 28px rgba(231,181,99,0.35);
+    animation: lockon 700ms ease-out;
+  }
+  @keyframes lockon{
+    0%{ box-shadow: 0 0 0 0 rgba(231,181,99,0.55); }
+    100%{ box-shadow: 0 0 0 16px rgba(231,181,99,0); }
+  }
+  .node.inner svg{ width:22px; height:22px; stroke: var(--text); }
+  .node.outer svg{ width:34px; height:34px; stroke: var(--text); }
+
+  .tip{
+    position:absolute; bottom: calc(100% + 10px); left:50%; transform: translateX(-50%) translateY(4px);
+    background: var(--panel-solid); border:1px solid var(--line); border-radius:8px;
+    padding: 5px 10px; font-family:'JetBrains Mono', monospace; font-size:10px;
+    color: var(--text); white-space:nowrap; opacity:0; pointer-events:none;
+    transition: opacity 160ms ease, transform 160ms ease;
+    z-index:90;
+  }
+  .node button:hover .tip, .node button:focus-visible .tip{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+  .caption{
+    position:relative; z-index:2; text-align:center; max-width: 660px;
+    margin: 2px auto 0; padding: 0 20px 10px;
+  }
+  .caption h1{
+    font-family:'Unbounded', sans-serif; font-weight:700;
+    font-size: clamp(22px, 3.4vw, 34px); line-height:1.25; letter-spacing:-0.01em;
+  }
+  .caption .support{ margin-top:10px; font-size:15.5px; color: var(--muted); line-height:1.6; }
+  .caption .cta-line{
+    margin-top:14px; font-size:12.5px; color: var(--text); line-height:1.6;
+    font-family:'JetBrains Mono', monospace; letter-spacing:0.01em;
+  }
+  .caption .cta-line a,
+  .caption .cta-line button{
+    all:unset; cursor:pointer; color: var(--gold); text-decoration: underline; text-underline-offset:3px;
+  }
+  .legend{
+    display:flex; gap:18px; justify-content:center; margin-top:16px; flex-wrap:wrap;
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; color: var(--muted);
+  }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .swatch{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .swatch.gold{ background: var(--gold); box-shadow:0 0 6px var(--gold); }
+  .swatch.rose{ background: var(--rose); box-shadow:0 0 6px var(--rose); }
+
+  .principles{
+    position:relative; z-index:2;
+    display:flex; flex-wrap:wrap; justify-content:center; gap: 10px 26px;
+    max-width: 900px; margin: 22px auto 28px; padding: 0 20px;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.08em;
+    color: var(--muted);
+  }
+  .principles span{ white-space:nowrap; }
+  .principles span::before{ content:"◆ "; color: var(--gold); }
+
+  /* ---------- SECTION SHARED ---------- */
+  .section-inner{
+    max-width: 1080px; margin: 0 auto; padding: 28px 20px 40px;
+  }
+  .section-inner h2{
+    font-family:'Unbounded', sans-serif; font-size:20px; font-weight:600;
+    text-align:center; margin-bottom: 8px;
+  }
+  .section-lead{
+    text-align:center; font-size:14px; color: var(--muted); margin-bottom: 22px; line-height:1.55;
+  }
+
+  /* ---------- FILTERS + GRID ---------- */
+  .filters{ margin-bottom: 18px; }
+  .filters .row{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:10px; }
+  .chip{
+    all:unset; cursor:pointer;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.05em;
+    padding: 7px 14px; border-radius:999px;
+    border: 1px solid var(--line); color: var(--muted);
+    transition: all 160ms ease;
+  }
+  .chip:hover{ border-color: var(--gold); color: var(--text); }
+  .chip.active{ background: var(--gold); border-color: var(--gold); color:#181205; font-weight:600; }
+  .chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:12px;
+  }
+  .gcard{
+    all:unset; cursor:pointer; text-align:left;
+    background: var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding: 14px 14px 12px; position:relative; display:flex; flex-direction:column; gap:8px;
+    transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+  .gcard:hover, .gcard:focus-visible{
+    border-color: var(--gold); transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+  }
+  .gcard:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .gcard.hidden{ display:none; }
+  .gcard-top{ display:flex; align-items:center; gap:10px; }
+  .gcard-icon{
+    width:34px; height:34px; border-radius:10px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(231,181,99,0.1); border:1px solid var(--line);
+  }
+  .gcard-icon svg{ width:18px; height:18px; stroke: var(--gold); fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .gcard-title{ font-family:'Unbounded', sans-serif; font-size:13.5px; font-weight:600; line-height:1.3; }
+  .gcard-pain{ font-size:12px; color: var(--muted); line-height:1.5; }
+  .gcard-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+  .gtag{
+    font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.05em;
+    padding:3px 8px; border-radius:999px; border:1px solid var(--line); color: var(--muted);
+  }
+  .gtag.scope-campus{ color: var(--gold); border-color: rgba(231,181,99,0.35); }
+  .gtag.scope-wide{ color: var(--rose); border-color: rgba(217,138,157,0.35); }
+  .popular-badge{
+    position:absolute; top:-9px; right:12px;
+    background: linear-gradient(135deg, var(--gold), #c98f4a); color:#181205;
+    font-family:'JetBrains Mono', monospace; font-size:9.5px; font-weight:700; letter-spacing:0.06em;
+    padding: 4px 10px; border-radius:999px;
+  }
+
+  /* ---------- ABOUT ---------- */
+  .about-block{
+    max-width: 720px; margin: 0 auto; text-align:center; padding: 40px 20px 24px;
+  }
+  .about-block h2{ font-family:'Unbounded', sans-serif; font-size:20px; font-weight:600; margin-bottom:14px; }
+  .about-block p{ font-size:14.5px; color:#c9cad8; line-height:1.75; }
+  .stats{
+    display:flex; flex-wrap:wrap; justify-content:center; gap: 32px;
+    margin-top: 32px;
+  }
+  .stat{ text-align:center; }
+  .stat .num{ font-family:'Unbounded', sans-serif; font-size:30px; font-weight:800; color: var(--gold); }
+  .stat .label{ font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.06em; color: var(--muted); margin-top:4px; }
+
+  /* ---------- COLLAB ---------- */
+  .collab-block{
+    max-width: 640px; margin: 40px auto 24px; padding: 38px 30px;
+    background: linear-gradient(180deg, rgba(231,181,99,0.1), rgba(217,138,157,0.06));
+    border:1px solid rgba(231,181,99,0.3); border-left: 3px solid var(--gold);
+    border-radius:20px;
+    text-align:center;
+  }
+  .collab-block h2{ font-family:'Unbounded', sans-serif; font-size:20px; font-weight:600; margin-bottom:12px; }
+  .collab-block p{ font-size:14px; color: var(--muted); line-height:1.7; margin-bottom:20px; }
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; font-family:'Inter'; font-weight:600; font-size:13.5px;
+    padding: 12px 20px; border-radius:11px; text-decoration:none; cursor:pointer; border:1px solid transparent;
+    transition: transform 160ms ease, background 160ms ease;
+  }
+  .btn:hover{ transform: translateY(-1px); }
+  .btn-primary{ background: linear-gradient(135deg, var(--gold), #c98f4a); color:#181205; }
+  .btn-secondary{ background:transparent; border-color: var(--line); color: var(--text); }
+
+  footer{
+    position:relative; z-index:2; text-align:center;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.05em; color: #7d82a0;
+    padding: 28px 20px 30px; line-height:2;
+  }
+  footer a{ color: var(--gold); text-decoration:none; }
+  footer a:hover{ text-decoration:underline; }
+  footer .foot-name{ color: var(--muted); }
+
+  /* ---------- MODALS ---------- */
+  .veil{
+    position:fixed; inset:0; z-index:100; background: rgba(6,7,15,0.72); backdrop-filter: blur(4px);
+    display:flex; align-items:center; justify-content:center; padding: 24px;
+    opacity:0; pointer-events:none; transition: opacity 260ms ease;
+  }
+  .veil.open{ opacity:1; pointer-events:auto; }
+  .card{
+    width:100%; max-width: 480px;
+    background: linear-gradient(180deg, #171a30, #101223);
+    border: 1px solid var(--line); border-radius: 20px; padding: 30px 28px 26px;
+    position:relative; transform: translateY(14px) scale(0.98); opacity:0;
+    transition: transform 320ms cubic-bezier(.2,.8,.2,1), opacity 320ms ease;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+    max-height: 84vh; overflow-y:auto;
+  }
+  .veil.open .card{ transform: translateY(0) scale(1); opacity:1; }
+  .card .scope{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.1em; color: var(--gold);
+    border:1px solid rgba(231,181,99,0.35); padding:4px 10px; border-radius:999px; margin-bottom:16px;
+  }
+  .card h2{ font-family:'Unbounded', sans-serif; font-size: 19px; line-height:1.3; font-weight:600; margin-bottom:4px; }
+  .card .subhead{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+  .card p.pain{ font-size:12.5px; font-style:italic; color:#9a9fb8; line-height:1.6; margin-bottom:10px; }
+  .card p.desc{ font-size:13.5px; line-height:1.65; color: #d7d7e0; margin-bottom: 14px; }
+  .card ul{ list-style:none; margin-bottom:14px; }
+  .card ul li{ font-size:12.5px; color:#c3c4d2; padding: 5px 0 5px 18px; position:relative; line-height:1.5; }
+  .card ul li::before{ content:"▸"; position:absolute; left:0; color:var(--gold); }
+  .card .forwhom{
+    font-size:11.5px; color: var(--muted); margin-bottom:18px;
+    font-family:'JetBrains Mono', monospace; letter-spacing:0.02em;
+  }
+  .card .forwhom b{ color: var(--text); font-weight:600; }
+  .actions{ display:flex; gap:10px; margin-top:6px; flex-wrap:wrap; align-items:center; }
+  .card .soft-link{
+    font-size:12px; color: var(--muted); text-decoration:underline; text-underline-offset:3px;
+  }
+  .card .soft-link:hover{ color: var(--gold); }
+  .close-x{
+    all:unset; position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; color: var(--muted); cursor:pointer; border:1px solid var(--line);
+  }
+  .close-x:hover{ color:var(--text); border-color:var(--gold); }
+
+  .contact-card .actions{ flex-direction:column; align-items:stretch; }
+  .contact-card .actions .btn{ text-align:center; justify-content:center; }
+  .contact-card .desc{ margin-bottom:18px; }
+
+  @media (max-width: 900px){
+    header{ flex-wrap:wrap; }
+    .callsign-meta{ display:none; }
+    .nav{ order:3; width:100%; justify-content:center; margin-top:4px; }
+  }
+  @media (max-width: 1024px){
+    .stage{ max-height: 70vh; }
+  }
+  @media (max-width: 640px){
+    .stage{ max-height: 58vh; max-width: 460px; }
+    .node{ width:50px; height:50px; margin:-25px; }
+    .node.outer{ width:74px; height:74px; margin:-37px; }
+    .node.inner svg{ width:18px; height:18px; }
+    .node.outer svg{ width:26px; height:26px; }
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .portrait-glow{ animation:none; }
+    .bokeh span{ animation:none; }
+    .node.active button{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bokeh" id="bokeh"></div>
+<div class="sr-only" aria-live="polite" id="liveRegion"></div>
+
+<header>
+  <a class="brand" href="#" id="homeBtn" aria-label="ASH INNOVATIONS — Home">
+    <div class="brand-icon"><img src="assets/sir-ash-icon.jpg" alt=""></div>
+    <div class="wordmark">ASH <span>INNOVATIONS</span></div>
+  </a>
+
+  <nav class="nav" aria-label="Main">
+    <button type="button" data-view="home" class="active">Home</button>
+    <button type="button" data-view="systems">Systems</button>
+    <button type="button" data-view="about">About</button>
+    <button type="button" data-view="collab">Collaborate</button>
+  </nav>
+
+  <div class="callsign-meta">
+    <div><span class="dot"></span>13 LIVE SYSTEMS</div>
+    <div>DAVAO CITY · REGION XI</div>
+  </div>
+</header>
+
+<!-- ===================== HOME ===================== -->
+<div class="view active" id="view-home">
+  <div class="hero-wrap">
+    <img class="pillar pillar-left" src="assets/hazsher1.png" alt="" aria-hidden="true" onerror="this.style.display='none'">
+    <div class="stage" id="stage">
+      <div class="ring-guide r-inner" id="ringInner"></div>
+      <div class="ring-guide r-outer" id="ringOuter"></div>
+
+      <div class="portrait-wrap">
+        <div class="portrait-glow"></div>
+        <div class="portrait">
+          <img src="assets/hazsher.jpg" alt="Hazsher Munjilul">
+        </div>
+        <div class="portrait-tag">SIR ASH · MISSION CONTROL</div>
+      </div>
+
+      <div id="innerNodes"></div>
+      <div id="outerNodes"></div>
+    </div>
+    <img class="pillar pillar-right" src="assets/hazsher2.png" alt="" aria-hidden="true" onerror="this.style.display='none'">
+  </div>
+
+  <div class="caption">
+    <h1>Thirteen systems built for DepEd schools — by a teacher who lives the work.</h1>
+    <p class="support">Tools that remove paperwork, speed up reporting, and free teachers to teach. Try any live system below.</p>
+    <p class="cta-line">Need something built for your school, cluster, or division? I design and ship production systems for DepEd contexts. <button type="button" class="contact-trigger">Let's talk →</button></p>
+    <div class="legend">
+      <span><span class="swatch gold"></span>Campus systems — SANHS tools</span>
+      <span><span class="swatch rose"></span>Wider-reach systems — Davao City &amp; Region XI</span>
+    </div>
+  </div>
+
+  <div class="principles">
+    <span>DepEd-aligned</span>
+    <span>Teacher-first</span>
+    <span>Production-ready</span>
+    <span>Works on any device</span>
+    <span>Paperless</span>
+  </div>
+</div>
+
+<!-- ===================== SYSTEMS ===================== -->
+<div class="view" id="view-systems">
+  <div class="section-inner">
+    <h2>Every system, at a glance</h2>
+    <p class="section-lead">Click any card for the full brief and a direct launch link.</p>
+
+    <div class="filters">
+      <div class="row" id="scopeChips"></div>
+      <div class="row" id="needChips"></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<!-- ===================== ABOUT ===================== -->
+<div class="view" id="view-about">
+  <div class="about-block">
+    <h2>About Sir Ash</h2>
+    <p>Hazsher “Sir Ash” Briz Munjilul is a Math teacher and JHS Academic Coordinator at Sta. Ana National High School, Davao City. Every system on this site was built under real school conditions — real deadlines, real reporting requirements, real classrooms — and is actively used in the contexts it was designed for.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">13</div><div class="label">LIVE SYSTEMS</div></div>
+      <div class="stat"><div class="num">145</div><div class="label">SECTIONS MANAGED</div></div>
+      <div class="stat"><div class="num">100%</div><div class="label">BUILT AS WEB APPLICATIONS</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== COLLAB ===================== -->
+<div class="view" id="view-collab">
+  <div class="collab-block">
+    <h2>For school leaders &amp; division offices</h2>
+    <p>These systems were built for specific DepEd workflows at SANHS, Cluster 1, Davao City, and Region XI. Schools or offices that want the same tools adapted to their context — or entirely new systems — can reach out. I design, build, deploy, and support production systems for DepEd environments.</p>
+    <button type="button" class="btn btn-primary contact-trigger">Start a conversation ↗</button>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-name">ASH INNOVATIONS — designed &amp; built by Hazsher "Sir Ash" Briz Munjilul</div>
+  <div>Davao City · Region XI &nbsp;·&nbsp; <a href="#" class="contact-trigger">Message on Messenger</a></div>
+</footer>
+
+<!-- App detail modal -->
+<div class="veil" id="veil">
+  <div class="card" id="card" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+    <button class="close-x" id="closeBtn" aria-label="Close">✕</button>
+    <div class="scope" id="cardScope">SCOPE</div>
+    <h2 id="cardTitle">Title</h2>
+    <div class="subhead" id="cardSubhead">Subhead</div>
+    <p class="pain" id="cardPain">Pain</p>
+    <p class="desc" id="cardDesc">Description</p>
+    <ul id="cardList"></ul>
+    <div class="forwhom" id="cardForwhom">Built for: <b></b></div>
+    <div class="actions">
+      <a class="btn btn-primary" id="cardLaunch" href="#" target="_blank" rel="noopener">Launch app ↗</a>
+      <button class="btn btn-secondary" id="cardClose">Close</button>
+    </div>
+    <div style="margin-top:14px;">
+      <a class="soft-link contact-trigger" id="cardMailto" href="#">Want this adapted for your school? →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Contact / Follow-first modal -->
+<div class="veil" id="contactVeil">
+  <div class="card contact-card" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <button class="close-x" id="contactCloseBtn" aria-label="Close">✕</button>
+    <div class="scope">MESSENGER</div>
+    <h2 id="contactTitle">Follow first, then message</h2>
+    <p class="desc">To make sure your message reaches me, please follow my Facebook profile first. After following, you can open Messenger and send your inquiry about adapting a system for your school or office.</p>
+    <div class="actions">
+      <a class="btn btn-secondary" href="https://www.facebook.com/hbrizmunjilul" target="_blank" rel="noopener">Follow on Facebook ↗</a>
+      <a class="btn btn-primary" href="https://m.me/hbrizmunjilul" target="_blank" rel="noopener">Open Messenger ↗</a>
+      <button class="btn btn-secondary" id="contactCloseBtn2">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const INNER = [
+  {
+    id:"lrhub", label:"LR HUB", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Materials"],
+    title:"Learning Resource Hub", subhead:"Shared instructional materials",
+    pain:"Instructional materials end up scattered across drives, group chats, and personal folders — hard to find when a lesson is due.",
+    desc:"One shared hub where teachers upload, organize, and browse materials by subject and grade level, gated to teacher-only Google Sign-In.",
+    points:["All subjects & grade levels in one place","Google Drive-linked folder structure","Long-established — cited in formal IPCRF documentation"],
+    forWhom:"Teachers across every subject and grade level",
+    url:"https://sanhs-lrhub.pages.dev/",
+    icon:`<path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v14"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M8 7h6M8 11h6"/>`
+  },
+  {
+    id:"enroll", label:"ENROLL", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Enrollment"],
+    title:"SMART SANHS Enrollment", subhead:"v2.0 — student enrollment system",
+    pain:"Manual enrollment means long lines, half-day leaves for parents, and error-prone paper records.",
+    desc:"Parents enroll from home — photo capture, ID generation, and section assignment handled digitally.",
+    points:["145 sections managed with zero data errors","Parents skip lines, heat, and half-day leave","Currently: enrollment closed for this SY — status page only, ready for next cycle"],
+    forWhom:"Parents, registrars, and section advisers",
+    url:"https://sanhs-teachers.pages.dev/enrollment-offline",
+    icon:`<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 8h4M19 6v4"/>`
+  },
+  {
+    id:"depthead", label:"DH-MON", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Monitoring"],
+    title:"Dept Heads Monitoring", subhead:"Instructional supervision tool",
+    pain:"Instructional supervision often runs on loose paper checklists that are slow to compile into RPMS and QA reports.",
+    desc:"A structured daily walkthrough tool covering all four DepEd Key Result Areas — a quick-check instrument, not a teacher evaluation.",
+    points:["Covers 4 DepEd KRAs","Daily walkthrough logging","Feeds directly into RPMS & QA compliance data"],
+    forWhom:"Head Teachers and Department Heads",
+    url:"https://sanhs-walkthrough.pages.dev/",
+    icon:`<path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z"/><path d="M6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/><path d="m9 13 2 2 4-4"/>`
+  },
+  {
+    id:"teacherhub", label:"TH-PH", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Grades & Reports","Attendance"],
+    title:"TeacherHub PH", subhead:"All-in-one teacher's companion",
+    pain:"Class records, attendance, health forms, and report cards eat hours of a teacher's week in manual computation.",
+    desc:"Import SF1 straight from LIS and let the system auto-compute grades, attendance alerts, BMI classification, and report cards.",
+    points:["Automatic grade computation (WW, PT, Term, transmutation)","SF2 attendance with 5-day absence alerts","SF8 Health & Nutrition with auto BMI/WHO classification","Instant SF9 report cards"],
+    forWhom:"Classroom advisers and subject teachers",
+    url:"https://teacherhub-one.vercel.app/",
+    icon:`<rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/>`
+  },
+  {
+    id:"ilaw", label:"ILAW", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Lesson Planning"],
+    title:"ILAW LP Generator", subhead:"AI lesson plan generator",
+    pain:"Writing a full lesson plan after a long teaching day is exhausting and repetitive.",
+    desc:"Generates a complete, ready-to-use ILAW-format lesson plan in about 30 seconds, in the right language for the subject.",
+    points:["30-second lesson plan generation","English for Math/English/Science/MAPEH/TLE-EPP, Tagalog for AP/Filipino/EsP","Built-in remediation & enrichment activities","Downloads as .docx"],
+    forWhom:"Any subject teacher writing daily lesson plans",
+    url:"https://ilawlpgenerator.vercel.app/",
+    icon:`<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.5.4.8 1 .8 1.7V16h5.6v-.5c0-.7.3-1.3.8-1.7A6 6 0 0 0 12 3Z"/>`
+  },
+  {
+    id:"mtmon", label:"MT-MON", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Monitoring"],
+    title:"MT Monitoring", subhead:"Master Teacher activity tracker",
+    pain:"Mentoring sessions, classroom observations, and LAC sessions are easy to log on paper and hard to consolidate for reporting.",
+    desc:"Master Teachers log activities digitally, mentees confirm in real time, and principals get a live dashboard.",
+    points:["Mentoring, observation & LAC session logs","Real-time mentee confirmation or dispute","Principal dashboard & paperless reports"],
+    forWhom:"Master Teachers, mentees, and principals",
+    url:"https://mt-monitoring.vercel.app/",
+    icon:`<circle cx="12" cy="12" r="3.2"/><path d="M3 12s3.5-6.5 9-6.5S21 12 21 12s-3.5 6.5-9 6.5S3 12 3 12Z"/>`
+  },
+  {
+    id:"explainhub", label:"EXPLAIN", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Materials"],
+    title:"ExplainHub", subhead:"Bite-sized explanations, any topic",
+    pain:"Complex topics take time to break down clearly for students who need another way in.",
+    desc:"Bite-sized, visual explanations and step-by-step guides across subjects, with smart search and personalized learning paths.",
+    points:["Bite-sized, visual explanations","Step-by-step guides across subjects","Smart search & personalized learning paths"],
+    forWhom:"Students and curious learners",
+    url:"https://explainhub.vercel.app/",
+    icon:`<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.3.9-1.3 1.7v.5"/><path d="M12 17h.01"/>`
+  },
+  {
+    id:"tos", label:"TOS-AI", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Assessment"],
+    title:"TOS AI Generator", subhead:"Table of Specifications + test items",
+    pain:"Building a Table of Specifications and matching test items by hand takes hours and is easy to misalign with the curriculum.",
+    desc:"A 5-step wizard builds a professional TOS and generates aligned test items directly from it.",
+    points:["5-step TOS wizard","AI-generated aligned test items","Curriculum-standards aligned","Also known as iTOS — submitted as a formal Division innovation paper"],
+    forWhom:"Teachers building periodic tests",
+    url:"https://tos-ai-generator.vercel.app/",
+    icon:`<rect x="3.5" y="4" width="17" height="16" rx="1.6"/><path d="M3.5 9h17"/><path d="M8 4v16"/>`
+  },
+  {
+    id:"smartpass", label:"PASS", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Attendance"],
+    title:"SANHS SMART Pass", subhead:"QR gate logbook",
+    pain:"A paper gate logbook is slow to fill out and impossible to search or summarize.",
+    desc:"Guards scan a QR-coded staff ID for instant time-in/time-out; admins and principals get live records.",
+    points:["QR time-in / time-out in seconds","Configurable out-reasons (OB, OT, ICM, etc.)","Live read-only dashboard for principals"],
+    forWhom:"Guards, admin staff, and school heads",
+    url:"https://sanhs-smartpass.vercel.app/",
+    icon:`<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M15 15h2v2h-2zM18 15h2v2h-2zM15 18h2v2h-2zM18 18h2v2h-2z"/>`
+  },
+  {
+    id:"quizcade", label:"QUIZ", scope:"campus", scopeLabel:"CAMPUS · SANHS", tags:["Assessment"],
+    title:"Quizcade", subhead:"Any quiz, 22 classroom games",
+    pain:"Reviewing for a test with the same worksheet format gets stale fast, for students and teachers alike.",
+    desc:"Turns any multiple-choice quiz into 22 interactive classroom games in under a minute — no student accounts needed.",
+    points:["22 game formats from one quiz","Accepts text, .docx, .pdf, or a TOS AI Generator export","Shareable link — no accounts needed"],
+    forWhom:"Teachers running reviews or classroom games",
+    url:"https://quiz-games-app.vercel.app/",
+    icon:`<rect x="3" y="8" width="18" height="9" rx="4"/><circle cx="8" cy="12.5" r="1.3"/><circle cx="16" cy="12.5" r="1.3"/><path d="M11 12.5h2"/>`
+  }
+];
+
+const OUTER = [
+  {
+    id:"sped", label:"SPED-DCS", scope:"wide", scopeLabel:"CITY-WIDE · DAVAO CITY", tags:["SPED"],
+    title:"SPED Data Consolidation System", subhead:"Self-Contained & Mainstream SPED learners",
+    pain:"SPED learner, teacher, and resource data lives in separate school-level records that are hard to consolidate city-wide.",
+    desc:"A consolidated, role-scoped system pulling real-time SPED data from every public school in Davao City.",
+    points:["Covers every public school in Davao City","Scoped access for every role in SPED reporting","One system for learner, teacher & resource data"],
+    forWhom:"SPED coordinators, teachers, and division reporting staff",
+    url:"https://davao-sped-app.vercel.app/",
+    icon:`<circle cx="12" cy="6" r="2.4"/><path d="M12 8.4v5"/><path d="M8 21l2.2-6.6M16 21l-2.2-6.6"/><path d="M7 12h10"/>`
+  },
+  {
+    id:"cluster1", label:"C1-M&E", scope:"wide", scopeLabel:"CLUSTER 1", tags:["Monitoring"],
+    title:"Cluster 1 School Performance M&E", subhead:"SY 2023–2024 onward",
+    pain:"Cluster-level KPI monitoring — enrollment, dropout, NAT, ratios — is usually compiled manually from many separate school reports.",
+    desc:"Real-time encoding and monitoring of Cluster 1's key indicators, from access and efficiency to quality and enabling mechanisms.",
+    points:["Access & Participation — enrollment, out-of-school youth","Efficiency & Internal Progression — repetition, dropout, cohort survival","Quality & Learning Outcomes — NAT, GWA, failure rate","Enabling Mechanisms — learner–teacher, classroom, seat & textbook ratios"],
+    forWhom:"Cluster 1 school heads and M&E coordinators",
+    url:"https://cluster1-mne.vercel.app/",
+    icon:`<path d="M4 20V10M10 20V4M16 20v-7M4 20h16"/>`
+  },
+  {
+    id:"ilead", label:"ILEAD", scope:"wide", scopeLabel:"REGIONAL · REGION XI HRDD", tags:["CPD"],
+    title:"ILEAD — CPD Program Management System", subhead:"Innovating Leadership Excellence and Adaptability Dynamism",
+    pain:"Tracking CPD accreditation, credit units, and completion reports across a region is heavy manual paperwork.",
+    desc:"Real-time CPD program tracking from division to regional level, with ready-to-export summary reports.",
+    points:["Accredited programs with accreditation numbers","Credit units & program hours monitoring","Completion report submission status","Division & regional summary reports","Professional Excel export with DepEd branding"],
+    forWhom:"Teachers, school leaders, and Region XI HRDD",
+    url:"https://depedr11-hrdd-cpd.vercel.app/",
+    icon:`<path d="M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.4 7.2 17.9l.9-5.4L4.2 8.7l5.4-.8z"/>`
+  }
+];
+
+const ALL_APPS = INNER.concat(OUTER);
+const FEATURED_IDS = new Set(["teacherhub","ilaw","tos","quizcade","enroll","smartpass"]);
+
+/* ---------- Ambient bokeh ---------- */
+(function bokeh(){
+  const holder = document.getElementById('bokeh');
+  const palette = ['#e7b563','#d98a9d','#f4f1ea'];
+  for(let i=0;i<16;i++){
+    const s = document.createElement('span');
+    const size = 20 + Math.random()*70;
+    s.style.width = size+'px'; s.style.height = size+'px';
+    s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+    s.style.background = palette[i % palette.length];
+    s.style.animationDelay = (Math.random()*10)+'s';
+    s.style.animationDuration = (16 + Math.random()*14)+'s';
+    holder.appendChild(s);
+  }
+})();
+
+/* ---------- View switching ---------- */
+const views = {
+  home: document.getElementById('view-home'),
+  systems: document.getElementById('view-systems'),
+  about: document.getElementById('view-about'),
+  collab: document.getElementById('view-collab')
+};
+const navButtons = document.querySelectorAll('.nav button');
+const liveRegion = document.getElementById('liveRegion');
+
+function showView(name){
+  Object.keys(views).forEach(k => {
+    views[k].classList.toggle('active', k === name);
+  });
+  navButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === name);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  liveRegion.textContent = name === 'home' ? 'Home' : name.charAt(0).toUpperCase() + name.slice(1) + ' section';
+}
+
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+});
+document.getElementById('homeBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  showView('home');
+});
+
+/* ---------- Responsive geometry ---------- */
+function getGeometry(){
+  const w = window.innerWidth;
+  if(w <= 640){
+    return { inner: 110, outer: 175, ratio: 0.46, speed: 0.55 };
+  } else if(w <= 1024){
+    return { inner: 155, outer: 270, ratio: 0.43, speed: 0.8 };
+  }
+  return { inner: 200, outer: 370, ratio: 0.41, speed: 1 };
+}
+let geo = getGeometry();
+function applyRingSizes(){
+  document.getElementById('ringInner').style.width = (geo.inner*2)+'px';
+  document.getElementById('ringInner').style.height = (geo.inner*2*geo.ratio)+'px';
+  document.getElementById('ringOuter').style.width = (geo.outer*2)+'px';
+  document.getElementById('ringOuter').style.height = (geo.outer*2*geo.ratio)+'px';
+}
+applyRingSizes();
+window.addEventListener('resize', () => { geo = getGeometry(); applyRingSizes(); });
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Ring engine ---------- */
+function makeRing(containerEl, apps, sizeClass, radiusKey, angularVelocity){
+  const N = apps.length;
+  const step = (Math.PI * 2) / N;
+  const state = {
+    phase: -Math.PI/2,
+    velocity: angularVelocity,
+    hoverPaused: false,
+    modalPaused: false,
+    spinTarget: null,
+  };
+
+  const nodeEls = apps.map((app, i) => {
+    const el = document.createElement('div');
+    el.className = `node ${sizeClass}`;
+    el.dataset.index = i;
+    el.innerHTML = `
+      <button aria-label="${app.title}">
+        <span class="tip">${app.label}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${app.icon}</svg>
+      </button>
+    `;
+    containerEl.appendChild(el);
+    const btn = el.querySelector('button');
+    btn.addEventListener('click', () => selectNode(i));
+    btn.addEventListener('mouseenter', () => { state.hoverPaused = true; });
+    btn.addEventListener('mouseleave', () => { state.hoverPaused = false; });
+    btn.addEventListener('focus', () => { state.hoverPaused = true; });
+    btn.addEventListener('blur', () => { state.hoverPaused = false; });
+    return el;
+  });
+
+  function angleFor(i){ return i * step + state.phase; }
+
+  function render(){
+    const R = geo[radiusKey];
+    const ratio = geo.ratio;
+    nodeEls.forEach((el, i) => {
+      const a = angleFor(i);
+      const x = R * Math.sin(a);
+      const y = -R * ratio * Math.cos(a);
+      const depth = (1 - Math.cos(a)) / 2;
+      const scale = 0.72 + depth * 0.4;
+      const opacity = 0.5 + depth * 0.5;
+      const z = Math.round(20 + depth * 60);
+      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      el.style.opacity = opacity.toFixed(2);
+      el.style.zIndex = z;
+    });
+  }
+
+  function selectNode(i){
+    const targetAngle = Math.PI / 2;
+    const currentAngle = ((i * step + state.phase) % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
+    let deltaNeeded = targetAngle - currentAngle;
+    deltaNeeded = ((deltaNeeded + Math.PI) % (Math.PI*2) + Math.PI*2) % (Math.PI*2) - Math.PI;
+    state.spinTarget = { from: state.phase, to: state.phase + deltaNeeded, start: performance.now(), duration: 800 };
+    state.modalPaused = true;
+    nodeEls.forEach((el, idx) => el.classList.toggle('active', idx === i));
+    window.setTimeout(() => openCard(apps[i]), 820);
+  }
+
+  function tick(now, dt){
+    if(state.spinTarget){
+      const t = Math.min(1, (now - state.spinTarget.start) / state.spinTarget.duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      state.phase = state.spinTarget.from + (state.spinTarget.to - state.spinTarget.from) * eased;
+      if(t >= 1){ state.spinTarget = null; }
+    } else if(!state.hoverPaused && !state.modalPaused && !reduceMotion){
+      state.phase += state.velocity * geo.speed * dt;
+    }
+    render();
+  }
+
+  function resume(){ state.modalPaused = false; }
+  function clearActive(){ nodeEls.forEach(el => el.classList.remove('active')); }
+
+  render();
+  return { tick, resume, clearActive };
+}
+
+const innerRing = makeRing(document.getElementById('innerNodes'), INNER, 'inner', 'inner', 0.00016);
+const outerRing = makeRing(document.getElementById('outerNodes'), OUTER, 'outer', 'outer', -0.00010);
+
+let lastTime = performance.now();
+function loop(now){
+  const dt = now - lastTime;
+  lastTime = now;
+  innerRing.tick(now, dt);
+  outerRing.tick(now, dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ---------- Catalog grid ---------- */
+const gridEl = document.getElementById('grid');
+ALL_APPS.forEach(app => {
+  const card = document.createElement('button');
+  card.className = 'gcard';
+  card.dataset.scope = app.scope;
+  card.dataset.tags = app.tags.join('|');
+  card.setAttribute('aria-label', 'View details for ' + app.title);
+  card.innerHTML = `
+    ${FEATURED_IDS.has(app.id) ? '<span class="popular-badge">POPULAR</span>' : ''}
+    <div class="gcard-top">
+      <div class="gcard-icon"><svg viewBox="0 0 24 24">${app.icon}</svg></div>
+      <div class="gcard-title">${app.title}</div>
+    </div>
+    <div class="gcard-pain">${app.pain}</div>
+    <div class="gcard-tags">
+      <span class="gtag scope-${app.scope}">${app.scope === 'campus' ? 'Campus' : 'Wider-reach'}</span>
+      ${app.tags.map(t => `<span class="gtag">${t}</span>`).join('')}
+    </div>
+  `;
+  card.addEventListener('click', () => openCard(app));
+  gridEl.appendChild(card);
+});
+
+/* ---------- Filters ---------- */
+const scopeChipsEl = document.getElementById('scopeChips');
+const needChipsEl = document.getElementById('needChips');
+const SCOPES = [ {key:'all', label:'All systems'}, {key:'campus', label:'Campus'}, {key:'wide', label:'City / Cluster / Region'} ];
+const NEEDS = Array.from(new Set(ALL_APPS.flatMap(a => a.tags))).sort();
+
+let activeScope = 'all';
+let activeNeeds = new Set();
+
+SCOPES.forEach(s => {
+  const chip = document.createElement('button');
+  chip.className = 'chip' + (s.key === 'all' ? ' active' : '');
+  chip.textContent = s.label;
+  chip.dataset.scope = s.key;
+  chip.addEventListener('click', () => {
+    activeScope = s.key;
+    scopeChipsEl.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.scope === s.key));
+    applyFilters();
+  });
+  scopeChipsEl.appendChild(chip);
+});
+
+NEEDS.forEach(need => {
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.textContent = need;
+  chip.dataset.need = need;
+  chip.addEventListener('click', () => {
+    if(activeNeeds.has(need)){ activeNeeds.delete(need); chip.classList.remove('active'); }
+    else{ activeNeeds.add(need); chip.classList.add('active'); }
+    applyFilters();
+  });
+  needChipsEl.appendChild(chip);
+});
+
+function applyFilters(){
+  gridEl.querySelectorAll('.gcard').forEach(card => {
+    const scopeOk = activeScope === 'all' || card.dataset.scope === activeScope;
+    const cardTags = card.dataset.tags.split('|');
+    const needOk = activeNeeds.size === 0 || cardTags.some(t => activeNeeds.has(t));
+    card.classList.toggle('hidden', !(scopeOk && needOk));
+  });
+}
+
+/* ---------- App modal ---------- */
+const veil = document.getElementById('veil');
+const cardScope = document.getElementById('cardScope');
+const cardTitle = document.getElementById('cardTitle');
+const cardSubhead = document.getElementById('cardSubhead');
+const cardPain = document.getElementById('cardPain');
+const cardDesc = document.getElementById('cardDesc');
+const cardList = document.getElementById('cardList');
+const cardForwhom = document.getElementById('cardForwhom').querySelector('b');
+const cardLaunch = document.getElementById('cardLaunch');
+const cardMailto = document.getElementById('cardMailto');
+
+function openCard(app){
+  cardScope.textContent = app.scopeLabel;
+  cardTitle.textContent = app.title;
+  cardSubhead.textContent = app.subhead;
+  cardPain.textContent = app.pain;
+  cardDesc.textContent = app.desc;
+  cardList.innerHTML = app.points.map(p => `<li>${p}</li>`).join('');
+  cardForwhom.textContent = app.forWhom;
+  cardLaunch.href = app.url;
+  veil.classList.add('open');
+  document.getElementById('closeBtn').focus();
+  liveRegion.textContent = `Opened details for ${app.title}`;
+}
+function closeCard(){
+  veil.classList.remove('open');
+  innerRing.resume();
+  outerRing.resume();
+  innerRing.clearActive();
+  outerRing.clearActive();
+  liveRegion.textContent = 'Closed';
+}
+document.getElementById('closeBtn').addEventListener('click', closeCard);
+document.getElementById('cardClose').addEventListener('click', closeCard);
+veil.addEventListener('click', (e) => { if(e.target === veil) closeCard(); });
+
+/* ---------- Contact popup ---------- */
+const contactVeil = document.getElementById('contactVeil');
+function openContact(){
+  if(veil.classList.contains('open')) closeCard();
+  contactVeil.classList.add('open');
+  document.getElementById('contactCloseBtn').focus();
+}
+function closeContact(){
+  contactVeil.classList.remove('open');
+}
+document.getElementById('contactCloseBtn').addEventListener('click', closeContact);
+document.getElementById('contactCloseBtn2').addEventListener('click', closeContact);
+contactVeil.addEventListener('click', (e) => { if(e.target === contactVeil) closeContact(); });
+document.querySelectorAll('.contact-trigger').forEach(el => {
+  el.addEventListener('click', (e) => { e.preventDefault(); openContact(); });
+});
+
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){ closeCard(); closeContact(); }
+});
+</script>
+
+</body>
+</html>
