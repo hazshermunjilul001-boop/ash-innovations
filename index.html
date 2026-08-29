@@ -185,6 +185,71 @@
     color: var(--gold); white-space:nowrap;
   }
 
+  .portrait-wrap{ transition: opacity 320ms ease, transform 320ms ease; }
+  .portrait-wrap.dimmed{ opacity:0; transform: translate(-50%,-50%) scale(0.8); pointer-events:none; }
+
+  /* ---------- PREVIEW STAGE (orbit → screenshot) ---------- */
+  .preview-stage{
+    position:absolute; top:50%; left:50%; transform: translate(-50%,-50%) scale(0.86);
+    z-index:95; width: min(92%, 460px);
+    opacity:0; pointer-events:none;
+    transition: opacity 320ms ease, transform 320ms ease;
+  }
+  .preview-stage.open{ opacity:1; pointer-events:auto; transform: translate(-50%,-50%) scale(1); }
+  .preview-panel{
+    background: linear-gradient(180deg, #171a30, #101223);
+    border:1px solid var(--line); border-radius:18px; overflow:hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+  }
+  .preview-shot{
+    position:relative; width:100%; aspect-ratio: 12/7; background: var(--panel-solid);
+    overflow:hidden;
+  }
+  .preview-shot img{
+    width:100%; height:100%; object-fit:cover; object-position: top center;
+    display:block; opacity:0; transition: opacity 260ms ease;
+  }
+  .preview-shot img.loaded{ opacity:1; }
+  .preview-shot .shimmer{
+    position:absolute; inset:0;
+    background: linear-gradient(100deg, var(--panel-solid) 30%, rgba(231,181,99,0.12) 50%, var(--panel-solid) 70%);
+    background-size: 240% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes shimmer{ 0%{ background-position: 140% 0; } 100%{ background-position: -40% 0; } }
+  .preview-shot .scope-tag{
+    position:absolute; top:10px; left:10px;
+    font-family:'JetBrains Mono', monospace; font-size:9.5px; letter-spacing:0.09em;
+    background: rgba(10,11,20,0.72); backdrop-filter: blur(4px);
+    border:1px solid var(--line-soft); color: var(--gold);
+    padding: 4px 9px; border-radius:999px;
+  }
+  .preview-body{ padding: 18px 20px 20px; }
+  .preview-body h3{ font-family:'Unbounded', sans-serif; font-size:16.5px; font-weight:600; margin-bottom:5px; }
+  .preview-body .value-line{ font-size:12.5px; color: var(--muted); line-height:1.55; margin-bottom:14px; }
+  .preview-body .actions{ margin-top:0; }
+  .preview-close{
+    all:unset; position:absolute; top:12px; right:12px; z-index:2; width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:#fff; background: rgba(6,7,15,0.55); backdrop-filter: blur(4px);
+  }
+  .preview-close:hover{ background: rgba(6,7,15,0.8); }
+
+  @media (max-width: 640px){
+    .preview-stage{
+      position:fixed; inset:auto 0 0 0; top:auto; left:0; transform: translateY(100%);
+      width:100%; max-width:none; z-index:120;
+    }
+    .preview-stage.open{ transform: translateY(0); }
+    .preview-panel{ border-radius:20px 20px 0 0; border-bottom:none; }
+    .preview-shot{ aspect-ratio: 16/10; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .preview-stage, .portrait-wrap{ transition:none; }
+    .preview-shot .shimmer{ animation:none; }
+  }
+
   .node{
     position:absolute; top:50%; left:50%;
     width:58px; height:58px; margin:-29px;
@@ -207,6 +272,14 @@
     border-color: var(--gold);
     box-shadow: 0 0 0 4px rgba(231,181,99,0.14), 0 0 28px rgba(231,181,99,0.35);
     animation: lockon 700ms ease-out;
+  }
+  .node button.scope-wide{ border-color: rgba(217,138,157,0.4); }
+  .node button.scope-wide:hover, .node button.scope-wide:focus-visible{
+    border-color: var(--rose); box-shadow: 0 0 20px rgba(217,138,157,0.3);
+  }
+  .node.active button.scope-wide{
+    border-color: var(--rose);
+    box-shadow: 0 0 0 4px rgba(217,138,157,0.14), 0 0 28px rgba(217,138,157,0.38);
   }
   @keyframes lockon{
     0%{ box-shadow: 0 0 0 0 rgba(231,181,99,0.55); }
@@ -303,6 +376,13 @@
   }
   .gcard:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
   .gcard.hidden{ display:none; }
+  .gcard.featured{ border-color: rgba(231,181,99,0.4); }
+  .gcard-thumb{
+    width:100%; aspect-ratio: 16/9; border-radius:9px; overflow:hidden;
+    background: var(--panel-solid); margin-bottom:2px; border:1px solid var(--line-soft);
+  }
+  .gcard-thumb img{ width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+  .gcard-thumb.empty{ display:none; }
   .gcard-top{ display:flex; align-items:center; gap:10px; }
   .gcard-icon{
     width:34px; height:34px; border-radius:10px; flex:none;
@@ -485,6 +565,25 @@
 
       <div id="innerNodes"></div>
       <div id="outerNodes"></div>
+
+      <div class="preview-stage" id="previewStage" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <div class="preview-panel">
+          <button class="preview-close" id="previewCloseBtn" aria-label="Close preview">✕</button>
+          <div class="preview-shot">
+            <div class="shimmer" id="previewShimmer"></div>
+            <span class="scope-tag" id="previewScopeTag">SCOPE</span>
+            <img id="previewImg" alt="">
+          </div>
+          <div class="preview-body">
+            <h3 id="previewTitle">Title</h3>
+            <p class="value-line" id="previewValue">Value line</p>
+            <div class="actions">
+              <a class="btn btn-primary" id="previewLaunch" href="#" target="_blank" rel="noopener">Launch app ↗</a>
+              <button class="btn btn-secondary" id="previewDetails">See full brief</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <img class="pillar pillar-right" src="assets/hazsher2.png" alt="" aria-hidden="true" onerror="this.style.display='none'">
   </div>
@@ -597,6 +696,7 @@ const INNER = [
     points:["All subjects & grade levels in one place","Google Drive-linked folder structure","Long-established — cited in formal IPCRF documentation"],
     forWhom:"Teachers across every subject and grade level",
     url:"https://sanhs-lrhub.pages.dev/",
+    preview:"assets/previews/lrhub.webp",
     icon:`<path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v14"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M8 7h6M8 11h6"/>`
   },
   {
@@ -607,6 +707,7 @@ const INNER = [
     points:["145 sections managed with zero data errors","Parents skip lines, heat, and half-day leave","Currently: enrollment closed for this SY — status page only, ready for next cycle"],
     forWhom:"Parents, registrars, and section advisers",
     url:"https://sanhs-teachers.pages.dev/enrollment-offline",
+    preview:"assets/previews/enroll.webp",
     icon:`<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 8h4M19 6v4"/>`
   },
   {
@@ -617,6 +718,7 @@ const INNER = [
     points:["Covers 4 DepEd KRAs","Daily walkthrough logging","Feeds directly into RPMS & QA compliance data"],
     forWhom:"Head Teachers and Department Heads",
     url:"https://sanhs-walkthrough.pages.dev/",
+    preview:"assets/previews/depthead.webp",
     icon:`<path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z"/><path d="M6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/><path d="m9 13 2 2 4-4"/>`
   },
   {
@@ -627,6 +729,7 @@ const INNER = [
     points:["Automatic grade computation (WW, PT, Term, transmutation)","SF2 attendance with 5-day absence alerts","SF8 Health & Nutrition with auto BMI/WHO classification","Instant SF9 report cards"],
     forWhom:"Classroom advisers and subject teachers",
     url:"https://teacherhub-one.vercel.app/",
+    preview:"assets/previews/teacherhub.webp",
     icon:`<rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/>`
   },
   {
@@ -637,6 +740,7 @@ const INNER = [
     points:["30-second lesson plan generation","English for Math/English/Science/MAPEH/TLE-EPP, Tagalog for AP/Filipino/EsP","Built-in remediation & enrichment activities","Downloads as .docx"],
     forWhom:"Any subject teacher writing daily lesson plans",
     url:"https://ilawlpgenerator.vercel.app/",
+    preview:"assets/previews/ilaw.webp",
     icon:`<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.5.4.8 1 .8 1.7V16h5.6v-.5c0-.7.3-1.3.8-1.7A6 6 0 0 0 12 3Z"/>`
   },
   {
@@ -647,6 +751,7 @@ const INNER = [
     points:["Mentoring, observation & LAC session logs","Real-time mentee confirmation or dispute","Principal dashboard & paperless reports"],
     forWhom:"Master Teachers, mentees, and principals",
     url:"https://mt-monitoring.vercel.app/",
+    preview:"assets/previews/mtmon.webp",
     icon:`<circle cx="12" cy="12" r="3.2"/><path d="M3 12s3.5-6.5 9-6.5S21 12 21 12s-3.5 6.5-9 6.5S3 12 3 12Z"/>`
   },
   {
@@ -657,6 +762,7 @@ const INNER = [
     points:["Bite-sized, visual explanations","Step-by-step guides across subjects","Smart search & personalized learning paths"],
     forWhom:"Students and curious learners",
     url:"https://explainhub.vercel.app/",
+    preview:"assets/previews/explainhub.webp",
     icon:`<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.3.9-1.3 1.7v.5"/><path d="M12 17h.01"/>`
   },
   {
@@ -667,6 +773,7 @@ const INNER = [
     points:["5-step TOS wizard","AI-generated aligned test items","Curriculum-standards aligned","Also known as iTOS — submitted as a formal Division innovation paper"],
     forWhom:"Teachers building periodic tests",
     url:"https://tos-ai-generator.vercel.app/",
+    preview:"assets/previews/tos.webp",
     icon:`<rect x="3.5" y="4" width="17" height="16" rx="1.6"/><path d="M3.5 9h17"/><path d="M8 4v16"/>`
   },
   {
@@ -677,6 +784,7 @@ const INNER = [
     points:["QR time-in / time-out in seconds","Configurable out-reasons (OB, OT, ICM, etc.)","Live read-only dashboard for principals"],
     forWhom:"Guards, admin staff, and school heads",
     url:"https://sanhs-smartpass.vercel.app/",
+    preview:"assets/previews/smartpass.webp",
     icon:`<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M15 15h2v2h-2zM18 15h2v2h-2zM15 18h2v2h-2zM18 18h2v2h-2z"/>`
   },
   {
@@ -687,6 +795,7 @@ const INNER = [
     points:["22 game formats from one quiz","Accepts text, .docx, .pdf, or a TOS AI Generator export","Shareable link — no accounts needed"],
     forWhom:"Teachers running reviews or classroom games",
     url:"https://quiz-games-app.vercel.app/",
+    preview:"assets/previews/quizcade.webp",
     icon:`<rect x="3" y="8" width="18" height="9" rx="4"/><circle cx="8" cy="12.5" r="1.3"/><circle cx="16" cy="12.5" r="1.3"/><path d="M11 12.5h2"/>`
   }
 ];
@@ -700,6 +809,7 @@ const OUTER = [
     points:["Covers every public school in Davao City","Scoped access for every role in SPED reporting","One system for learner, teacher & resource data"],
     forWhom:"SPED coordinators, teachers, and division reporting staff",
     url:"https://davao-sped-app.vercel.app/",
+    preview:"assets/previews/sped.webp",
     icon:`<circle cx="12" cy="6" r="2.4"/><path d="M12 8.4v5"/><path d="M8 21l2.2-6.6M16 21l-2.2-6.6"/><path d="M7 12h10"/>`
   },
   {
@@ -710,6 +820,7 @@ const OUTER = [
     points:["Access & Participation — enrollment, out-of-school youth","Efficiency & Internal Progression — repetition, dropout, cohort survival","Quality & Learning Outcomes — NAT, GWA, failure rate","Enabling Mechanisms — learner–teacher, classroom, seat & textbook ratios"],
     forWhom:"Cluster 1 school heads and M&E coordinators",
     url:"https://cluster1-mne.vercel.app/",
+    preview:"assets/previews/cluster1.webp",
     icon:`<path d="M4 20V10M10 20V4M16 20v-7M4 20h16"/>`
   },
   {
@@ -720,6 +831,7 @@ const OUTER = [
     points:["Accredited programs with accreditation numbers","Credit units & program hours monitoring","Completion report submission status","Division & regional summary reports","Professional Excel export with DepEd branding"],
     forWhom:"Teachers, school leaders, and Region XI HRDD",
     url:"https://depedr11-hrdd-cpd.vercel.app/",
+    preview:"assets/previews/ilead.webp",
     icon:`<path d="M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.4 7.2 17.9l.9-5.4L4.2 8.7l5.4-.8z"/>`
   }
 ];
@@ -811,7 +923,7 @@ function makeRing(containerEl, apps, sizeClass, radiusKey, angularVelocity){
     el.className = `node ${sizeClass}`;
     el.dataset.index = i;
     el.innerHTML = `
-      <button aria-label="${app.title}">
+      <button aria-label="${app.title}" class="scope-${app.scope}">
         <span class="tip">${app.label}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${app.icon}</svg>
       </button>
@@ -836,8 +948,8 @@ function makeRing(containerEl, apps, sizeClass, radiusKey, angularVelocity){
       const x = R * Math.sin(a);
       const y = -R * ratio * Math.cos(a);
       const depth = (1 - Math.cos(a)) / 2;
-      const scale = 0.72 + depth * 0.4;
-      const opacity = 0.5 + depth * 0.5;
+      const scale = 0.66 + depth * 0.52;
+      const opacity = 0.44 + depth * 0.56;
       const z = Math.round(20 + depth * 60);
       el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
       el.style.opacity = opacity.toFixed(2);
@@ -850,10 +962,11 @@ function makeRing(containerEl, apps, sizeClass, radiusKey, angularVelocity){
     const currentAngle = ((i * step + state.phase) % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
     let deltaNeeded = targetAngle - currentAngle;
     deltaNeeded = ((deltaNeeded + Math.PI) % (Math.PI*2) + Math.PI*2) % (Math.PI*2) - Math.PI;
-    state.spinTarget = { from: state.phase, to: state.phase + deltaNeeded, start: performance.now(), duration: 800 };
+    const duration = reduceMotion ? 1 : 800;
+    state.spinTarget = { from: state.phase, to: state.phase + deltaNeeded, start: performance.now(), duration };
     state.modalPaused = true;
     nodeEls.forEach((el, idx) => el.classList.toggle('active', idx === i));
-    window.setTimeout(() => openCard(apps[i]), 820);
+    window.setTimeout(() => attemptOpen(apps[i]), reduceMotion ? 20 : 820);
   }
 
   function tick(now, dt){
@@ -892,12 +1005,13 @@ requestAnimationFrame(loop);
 const gridEl = document.getElementById('grid');
 ALL_APPS.forEach(app => {
   const card = document.createElement('button');
-  card.className = 'gcard';
+  card.className = 'gcard' + (FEATURED_IDS.has(app.id) ? ' featured' : '');
   card.dataset.scope = app.scope;
   card.dataset.tags = app.tags.join('|');
   card.setAttribute('aria-label', 'View details for ' + app.title);
   card.innerHTML = `
     ${FEATURED_IDS.has(app.id) ? '<span class="popular-badge">POPULAR</span>' : ''}
+    ${app.preview ? `<div class="gcard-thumb"><img src="${app.preview}" alt="" loading="lazy" onerror="this.closest('.gcard-thumb').classList.add('empty')"></div>` : ''}
     <div class="gcard-top">
       <div class="gcard-icon"><svg viewBox="0 0 24 24">${app.icon}</svg></div>
       <div class="gcard-title">${app.title}</div>
@@ -993,6 +1107,61 @@ document.getElementById('closeBtn').addEventListener('click', closeCard);
 document.getElementById('cardClose').addEventListener('click', closeCard);
 veil.addEventListener('click', (e) => { if(e.target === veil) closeCard(); });
 
+/* ---------- Preview stage (orbit selection → screenshot) ---------- */
+const previewStage = document.getElementById('previewStage');
+const previewImg = document.getElementById('previewImg');
+const previewShimmer = document.getElementById('previewShimmer');
+const previewScopeTag = document.getElementById('previewScopeTag');
+const previewTitle = document.getElementById('previewTitle');
+const previewValue = document.getElementById('previewValue');
+const previewLaunch = document.getElementById('previewLaunch');
+const previewDetails = document.getElementById('previewDetails');
+const previewCloseBtn = document.getElementById('previewCloseBtn');
+const portraitWrapEl = document.querySelector('.portrait-wrap');
+
+function attemptOpen(app){
+  // No preview image configured for this app yet — go straight to the full brief.
+  if(!app.preview){ openCard(app); return; }
+  const tester = new Image();
+  tester.onload = () => showPreview(app);
+  tester.onerror = () => openCard(app); // graceful fallback until a screenshot is added
+  tester.src = app.preview;
+}
+
+function showPreview(app){
+  portraitWrapEl.classList.add('dimmed');
+  previewShimmer.style.display = 'block';
+  previewImg.classList.remove('loaded');
+  previewImg.onload = () => { previewShimmer.style.display = 'none'; previewImg.classList.add('loaded'); };
+  previewImg.src = app.preview;
+  previewImg.alt = app.title + ' — screenshot preview';
+  previewScopeTag.textContent = app.scopeLabel;
+  previewTitle.textContent = app.title;
+  previewValue.textContent = app.pain;
+  previewLaunch.href = app.url;
+  previewDetails.onclick = () => { hidePreviewStage(); openCard(app); };
+  previewStage.classList.add('open');
+  liveRegion.textContent = 'Preview of ' + app.title;
+  window.setTimeout(() => previewCloseBtn.focus(), reduceMotion ? 0 : 320);
+}
+
+function hidePreviewStage(){
+  previewStage.classList.remove('open');
+  portraitWrapEl.classList.remove('dimmed');
+}
+
+function closePreview(){
+  if(!previewStage.classList.contains('open')) return;
+  hidePreviewStage();
+  innerRing.resume();
+  outerRing.resume();
+  innerRing.clearActive();
+  outerRing.clearActive();
+  liveRegion.textContent = 'Closed';
+}
+
+previewCloseBtn.addEventListener('click', closePreview);
+
 /* ---------- Contact popup ---------- */
 const contactVeil = document.getElementById('contactVeil');
 function openContact(){
@@ -1011,7 +1180,7 @@ document.querySelectorAll('.contact-trigger').forEach(el => {
 });
 
 window.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape'){ closeCard(); closeContact(); }
+  if(e.key === 'Escape'){ closeCard(); closeContact(); closePreview(); }
 });
 </script>
 
