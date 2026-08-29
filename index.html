@@ -188,6 +188,21 @@
   .portrait-wrap{ transition: opacity 320ms ease, transform 320ms ease; }
   .portrait-wrap.dimmed{ opacity:0; transform: translate(-50%,-50%) scale(0.8); pointer-events:none; }
 
+  .node-flyer{
+    position:absolute; top:50%; left:50%;
+    width:92px; height:92px; margin:-46px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--panel); backdrop-filter: blur(6px);
+    border: 1px solid var(--gold); box-shadow: 0 0 0 4px rgba(231,181,99,0.14), 0 0 34px rgba(231,181,99,0.4);
+    z-index:150; pointer-events:none; will-change: transform, opacity;
+    transition: transform 560ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease;
+  }
+  .node-flyer svg{ width:34px; height:34px; stroke: var(--text); }
+  .node-flyer.scope-wide{
+    border-color: var(--rose);
+    box-shadow: 0 0 0 4px rgba(217,138,157,0.14), 0 0 34px rgba(217,138,157,0.4);
+  }
+
   /* ---------- PREVIEW STAGE (orbit → screenshot) ---------- */
   .preview-stage{
     position:absolute; top:50%; left:50%; transform: translate(-50%,-50%) scale(0.86);
@@ -966,7 +981,11 @@ function makeRing(containerEl, apps, sizeClass, radiusKey, angularVelocity){
     state.spinTarget = { from: state.phase, to: state.phase + deltaNeeded, start: performance.now(), duration };
     state.modalPaused = true;
     nodeEls.forEach((el, idx) => el.classList.toggle('active', idx === i));
-    window.setTimeout(() => attemptOpen(apps[i]), reduceMotion ? 20 : 820);
+    window.setTimeout(() => {
+      const app = apps[i];
+      const originBtn = nodeEls[i].querySelector('button');
+      flyToCenter(app, originBtn, nodeEls[i]);
+    }, reduceMotion ? 20 : 820);
   }
 
   function tick(now, dt){
@@ -982,7 +1001,7 @@ function makeRing(containerEl, apps, sizeClass, radiusKey, angularVelocity){
   }
 
   function resume(){ state.modalPaused = false; }
-  function clearActive(){ nodeEls.forEach(el => el.classList.remove('active')); }
+  function clearActive(){ nodeEls.forEach(el => { el.classList.remove('active'); el.style.opacity = ''; }); }
 
   render();
   return { tick, resume, clearActive };
@@ -1097,6 +1116,7 @@ function openCard(app){
 }
 function closeCard(){
   veil.classList.remove('open');
+  portraitWrapEl.classList.remove('dimmed');
   innerRing.resume();
   outerRing.resume();
   innerRing.clearActive();
@@ -1118,6 +1138,43 @@ const previewLaunch = document.getElementById('previewLaunch');
 const previewDetails = document.getElementById('previewDetails');
 const previewCloseBtn = document.getElementById('previewCloseBtn');
 const portraitWrapEl = document.querySelector('.portrait-wrap');
+const stageEl = document.getElementById('stage');
+
+function flyToCenter(app, originBtn, originNodeEl){
+  if(reduceMotion){
+    originNodeEl.style.opacity = '0';
+    attemptOpen(app);
+    return;
+  }
+
+  const stageRect = stageEl.getBoundingClientRect();
+  const btnRect = originBtn.getBoundingClientRect();
+  const originX = (btnRect.left + btnRect.width / 2) - (stageRect.left + stageRect.width / 2);
+  const originY = (btnRect.top + btnRect.height / 2) - (stageRect.top + stageRect.height / 2);
+
+  originNodeEl.style.opacity = '0';
+  portraitWrapEl.classList.add('dimmed');
+
+  const flyer = document.createElement('div');
+  flyer.className = 'node-flyer scope-' + app.scope;
+  flyer.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${app.icon}</svg>`;
+  flyer.style.opacity = '0';
+  flyer.style.transform = `translate(${originX}px, ${originY}px) scale(0.72)`;
+  stageEl.appendChild(flyer);
+
+  requestAnimationFrame(() => {
+    flyer.style.opacity = '1';
+    requestAnimationFrame(() => {
+      flyer.style.transform = 'translate(0px, 0px) scale(2.15)';
+    });
+  });
+
+  window.setTimeout(() => {
+    flyer.style.opacity = '0';
+    window.setTimeout(() => flyer.remove(), 260);
+    attemptOpen(app);
+  }, 560);
+}
 
 function attemptOpen(app){
   // No preview image configured for this app yet — go straight to the full brief.
